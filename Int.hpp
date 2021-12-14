@@ -15,8 +15,8 @@ public:
     ~Int() {
         mpz_clear(rop);
     }
-    Int(unsigned long n) {
-        mpz_init_set_ui(rop, n);
+    Int(signed long n) {
+        mpz_init_set_si(rop, n);
     }
     Int(const Int& other) {
         mpz_init_set(rop, other.rop);
@@ -28,8 +28,11 @@ public:
         return rop;
     }
     // Overriding assignment operators
-    void operator=(unsigned long n) {
+    /*void operator=(unsigned long n) {
         mpz_set_ui(rop, n);
+    }*/
+    void operator=(signed long n) {
+        mpz_set_si(rop, n);
     }
     void operator=(const Int& other) {
         mpz_set(rop, other.rop);
@@ -78,6 +81,9 @@ public:
     static void neg(Int& z) {
         mpz_neg(z.rop, z.rop);
     }
+    static void add(Int& sum, const Int& a, unsigned long b) {
+        mpz_add_ui(sum.rop, a.rop, b);
+    }
     // Sets diff = a - b
     static void sub(Int& diff, const Int& a, const Int& b) {
         mpz_sub(diff.rop, a.rop, b.rop);
@@ -90,6 +96,10 @@ public:
             mpz_add_ui(diff.rop, a.rop, std::abs(b));
         }
     }
+    // Sets out = out + a*b
+    static void addmul(Int& out, const Int& a, const Int& b) {
+        mpz_addmul(out.rop, a.rop, b.rop);
+    }
     // Sets out = out - a*b
     static void submul(Int& out, const Int& a, unsigned long b) {
         mpz_submul_ui(out.rop, a.rop, b);
@@ -100,6 +110,11 @@ public:
     }
     static void mul(Int& prod, const Int& a, unsigned long b) {
         mpz_mul_ui(prod.rop, a.rop, b);
+    }
+
+    // Sets out = a mod b
+    static void mod(Int& out, const Int& a, const Int& b) {
+        mpz_mod(out.rop, a.rop, b.rop);
     }
 
     // Multiplicative identity
@@ -151,7 +166,12 @@ public:
     static void sqrt(Int& sq, const Int& n) {
         mpz_sqrt(sq.rop, n.rop);
     }
-    
+    // Factors the largest power of 2 from z.
+    // Expresses z = 2^s * d where d is odd.
+    static void factor_2(size_t& s, Int& d, const Int& z) {
+        s = mpz_scan1(z.rop, 0); // Position of the first 1 bit
+        mpz_tdiv_q_2exp(d.rop, z.rop, s);
+    }
 
     friend std::ostream& operator<<(std::ostream& os, const Int& z);
 private:

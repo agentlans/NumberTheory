@@ -4,12 +4,12 @@
 #include "Stopwatch.hpp"
 
 int main() {
-    LucasProbablePrimeTester lpt;
+    LucasExtraStrongProbableTester lpt;
 
     Int end;
-    Int::pow(end, 2, 4096);
+    Int::pow(end, 10, 100);
 
-    const long trials = 1000;
+    const long trials = 100000;
 
     Random rand;
     Int n;

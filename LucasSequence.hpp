@@ -40,11 +40,11 @@ public:
         update_result();
     }
     // Get U_n and V_n of Lucas sequence
-    void get_u(Int& u) {
-        u = result.a;
+    Int& get_u() {
+        return result.a;
     }
-    void get_v(Int& v) {
-        v = result.b;
+    Int& get_v() {
+        return result.b;
     }
 private:
     void update_result() {

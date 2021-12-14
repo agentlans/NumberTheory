@@ -23,10 +23,9 @@ struct Matrix {
 void mul_matrix_entry(Int& out, 
     const Int& a, const Int& b, const Int& c, const Int& d,
     const Int& mod) {
-    out = 0;
-    mpz_addmul(out.x(), a.x(), b.x());
-    mpz_addmul(out.x(), c.x(), d.x());
-    mpz_mod(out.x(), out.x(), mod.x());
+    Int::mul(out, a, b);
+    Int::addmul(out, c, d);
+    Int::mod(out, out, mod);
 }
 
 // out = m1 * m2 (mod m) where m1, m2 are matrices
