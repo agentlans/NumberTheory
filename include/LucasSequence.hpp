@@ -40,10 +40,10 @@ public:
         update_result();
     }
     // Get U_n and V_n of Lucas sequence
-    Int& get_u() {
+    const Int& get_u() const {
         return result.a;
     }
-    Int& get_v() {
+    const Int& get_v() const {
         return result.b;
     }
 private:

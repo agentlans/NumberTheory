@@ -60,4 +60,62 @@ private:
     size_t s;
 };
 
+class MRSSProbableTester {
+public:
+    // Returns true if n is a probable prime using
+    // the Miller-Rabin test with a random base and
+    // the Solovay-Strassen test
+    bool test(const Int& n) {
+        if (n < 2) return false;
+        if (n == 2 || n == 3) return true;
+        if (n.is_even()) return false;
+        // n > 2 is odd
+        Int::sub(n1, n, 1); // n-1 = 2^s * d
+        Int::factor_2(s, d, n1);
+        // Pick 2 <= a < n
+        do {
+            rand.sample(a, n);
+        } while (a < 2);
+
+        int j = Int::jacobi(a, n);
+        if (j == 0) {
+            // j has a common factor with n
+            return false;
+        }
+        bool temp = false;
+        Int::pow_mod(result, a, d, n);
+        if (result == 1) {
+            temp = true;
+        }
+        for (size_t i = 0; i < s; ++i) {
+            if (!temp && result == n1) { // result = -1 (mod n)
+                temp = true;
+            }
+            if (i == s-1) {
+                //Int::pow_mod(ss, a, i, n);
+                if (j == 1) {
+                    ss = j;
+                } else {
+                    Int::sub(ss, n, 1);
+                }
+                if (!(result == ss)) {
+                    return false;
+                }
+            }
+            // Square result (mod n)
+            Int::mul(result, result, result);
+            Int::mod(result, result, n);
+        }
+        return temp;
+    }
+private:
+    Random rand;
+    Int n1;
+    Int a;
+    Int result;
+    Int d;
+    size_t s;
+    Int ss;
+};
+
 #endif

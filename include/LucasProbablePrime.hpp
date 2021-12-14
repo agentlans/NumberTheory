@@ -59,13 +59,13 @@ public:
         Int::add(delta_n, *n, 1);
         return true;
     }
-    Int& get_p() {
+    const Int& get_p() const {
         return p;
     }
-    Int& get_q() {
+    const Int& get_q() const {
         return q;
     }
-    Int& get_delta_n() {
+    const Int& get_delta_n() const {
         return delta_n;
     }
 private:
@@ -86,6 +86,23 @@ bool is_odd_positive(const Int& n) {
     }
 }
 
+// See Robert Baillie (https://cs.stackexchange.com/users/74793/robert-baillie), 
+// More details about the Baillie–PSW test, URL (version: 2017-07-11): https://cs.stackexchange.com/q/77811
+class BonusCheck {
+public:
+    template <class PQFinder>
+    void set(const PQFinder& pqf, const Int& n) {
+        // two_q = 2*Q (mod n)
+        Int::mul(two_q, pqf.get_q(), 2);
+        Int::mod(two_q, two_q, n);
+    }
+    bool check(const LucasSequence& ls) {
+        return (ls.get_v() == two_q);
+    }
+private:
+    Int two_q;
+};
+
 class LucasProbableTester {
 public:
     bool test(const Int& n) {
@@ -102,11 +119,19 @@ public:
         ls.set(pqf.get_p(), pqf.get_q(), n);
         ls.calculate_nth_term(pqf.get_delta_n());
         // Look at the U term of the sequence
-        return (ls.get_u() == 0);
+        if (ls.get_u() == 0) {
+            // Perform the bonus check
+            bc.set(pqf, n);
+            if (bc.check(ls)) {
+                return true;
+            }
+        }
+        return false;
     }
 private:
     PQFinder<0> pqf;
     LucasSequence ls;
+    BonusCheck bc;
 };
 
 class LucasStrongProbableTester {
@@ -126,23 +151,28 @@ public:
         ls.set(pqf.get_p(), pqf.get_q(), n);
         ls.calculate_nth_term(d);
         // Check U_d = 0
+        bool temp = false;
         if (ls.get_u() == 0) {
-            return true;
+            temp = true;
         }
         // Check V_(d*2^i) = 0
         for (size_t i = 0; i < s; ++i) {
-            if (ls.get_v() == 0) {
-                return true;
+            if (!temp && ls.get_v() == 0) {
+                temp = true;
             }
             ls.double_n();
         }
-        return false;
+        if (!temp) return false;
+        // Check V_(d*2^s) = V_(n+1)
+        bc.set(pqf, n);
+        return (bc.check(ls));
     }
 private:
     PQFinder<-1> pqf;
     LucasSequence ls;
     size_t s;
     Int d;
+    BonusCheck bc;
 };
 
 class LucasExtraStrongProbableTester {
@@ -161,22 +191,28 @@ public:
         // Set up Lucas sequence
         ls.set(pqf.get_p(), pqf.get_q(), n);
         ls.calculate_nth_term(d);
+        bool temp = false;
         // Check U_d = 0
         if (ls.get_u() == 0) {
             // and V_d = +2 or -2
             Int::sub(n2, n, 2);
-            if (ls.get_v() == 2 || ls.get_v() == n2) {
-                return true;
+            if (!temp) {
+                if (ls.get_v() == 2 || ls.get_v() == n2) {
+                    temp = true;
+                }
             }
         }
         // Check V_(d*2^i) = 0
         for (size_t i = 0; i < s-1; ++i) {
-            if (ls.get_v() == 0) {
-                return true;
+            if (!temp && ls.get_v() == 0) {
+                temp = true;
             }
             ls.double_n();
         }
-        return false;
+        if (!temp) return false;
+        ls.double_n();
+        bc.set(pqf, n);
+        return (bc.check(ls));
     }
 private:
     PQFinder<1> pqf;
@@ -184,6 +220,7 @@ private:
     size_t s;
     Int d;
     Int n2;
+    BonusCheck bc;
 };
 
 #endif
