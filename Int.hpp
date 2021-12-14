@@ -111,10 +111,13 @@ public:
     static void mul(Int& prod, const Int& a, unsigned long b) {
         mpz_mul_ui(prod.rop, a.rop, b);
     }
-
     // Sets out = a mod b
     static void mod(Int& out, const Int& a, const Int& b) {
         mpz_mod(out.rop, a.rop, b.rop);
+    }
+    // Sets out = a^b (mod m)
+    static void pow_mod(Int& out, const Int& a, const Int& b, const Int& m) {
+        mpz_powm(out.rop, a.rop, b.rop, m.rop);
     }
 
     // Multiplicative identity
